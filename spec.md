@@ -40,6 +40,154 @@ The system is designed to support both **individual expense tracking** and **sha
 * Login 
 * Profile 
 
+## 4.1 User Management
+
+This module handles user identity, authentication, and profile management.
+
+---
+
+### 4.1.1 User Registration
+
+**Purpose:** Allow a new user to create an account.
+
+#### Fields
+
+* **Name**
+
+  * Type: Text
+  * Required: Yes
+  * Validation:
+
+    * Minimum 2 characters
+    * Only alphabets and spaces
+
+* **Email**
+
+  * Type: Email
+  * Required: Yes
+  * Validation:
+
+    * Must be valid email format
+    * Must be unique
+
+* **Password**
+
+  * Type: Password
+  * Required: Yes
+  * Validation:
+
+    * Minimum 6–8 characters
+    * Should include at least one number (optional for MVP)
+
+* **Confirm Password**
+
+  * Type: Password
+  * Required: Yes
+  * Validation:
+
+    * Must match Password
+
+#### Actions
+
+* Register
+* Navigate to Login
+
+---
+
+### 4.1.2 Login
+
+**Purpose:** Authenticate existing users.
+
+#### Fields
+
+* **Email**
+
+  * Type: Email
+  * Required: Yes
+
+* **Password**
+
+  * Type: Password
+  * Required: Yes
+
+#### Actions
+
+* Login
+* Navigate to Registration
+
+#### Behavior
+
+* On success:
+
+  * Redirect to Dashboard
+* On failure:
+
+  * Show error message (invalid credentials)
+
+---
+
+### 4.1.3 Profile
+
+**Purpose:** View and update user information.
+
+#### Fields
+
+* **Name**
+
+  * Editable
+  * Same validation as registration
+
+* **Email**
+
+  * Read-only (recommended for MVP)
+  * Editable in future (with verification)
+
+* **Password**
+
+  * Not shown directly
+
+---
+
+### 4.1.4 Change Password 
+
+#### Fields
+
+* **Current Password**
+* **New Password**
+* **Confirm New Password**
+
+#### Validation
+
+* New password must meet criteria
+* Confirm password must match
+
+---
+
+### 4.1.5 Profile Preferences
+
+* Default currency
+* Time zone
+
+---
+
+### 4.1.6 API Interaction Notes
+
+* Passwords must be securely handled (hashed in backend)
+* Authentication handled via token/session (JWT recommended)
+* Frontend stores only authentication token (not sensitive data)
+
+---
+
+### 4.1.7 UX Notes
+
+* Keep forms minimal and fast
+* Show inline validation errors
+* Avoid too many mandatory fields
+* Smooth navigation between Login ↔ Register
+
+---
+
+
 ---
 
 ### 4.2 Expense Management
