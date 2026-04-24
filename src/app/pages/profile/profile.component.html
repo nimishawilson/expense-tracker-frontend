@@ -1,0 +1,143 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <mat-icon class="profile-avatar-icon">account_circle</mat-icon>
+    <h1 class="profile-title">My Profile</h1>
+  </div>
+
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>Personal Information</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (profileError()) {
+        <div class="server-error">{{ profileError() }}</div>
+      }
+      @if (profileSuccess()) {
+        <div class="success-message">{{ profileSuccess() }}</div>
+      }
+
+      <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="name" type="text" autocomplete="name" />
+          @if (profileForm.get('name')?.hasError('required') && profileForm.get('name')?.touched) {
+            <mat-error>Name is required</mat-error>
+          } @else if (profileForm.get('name')?.hasError('minlength') && profileForm.get('name')?.touched) {
+            <mat-error>Name must be at least 2 characters</mat-error>
+          } @else if (profileForm.get('name')?.hasError('pattern') && profileForm.get('name')?.touched) {
+            <mat-error>Only alphabets and spaces allowed</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="email" />
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+
+        <button mat-flat-button class="submit-btn" type="submit" [disabled]="profileSaving()">
+          @if (profileSaving()) {
+            Saving...
+          } @else {
+            Save Changes
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>Change Password</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (passwordError()) {
+        <div class="server-error">{{ passwordError() }}</div>
+      }
+      @if (passwordSuccess()) {
+        <div class="success-message">{{ passwordSuccess() }}</div>
+      }
+
+      <form #passwordFormRef="ngForm" [formGroup]="passwordForm" (ngSubmit)="onChangePassword(passwordFormRef)" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Current Password</mat-label>
+          <input
+            matInput
+            formControlName="currentPassword"
+            [type]="hideCurrentPassword() ? 'password' : 'text'"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="toggleCurrentPassword()"
+            [attr.aria-label]="hideCurrentPassword() ? 'Show password' : 'Hide password'"
+          >
+            <mat-icon>{{ hideCurrentPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (passwordForm.get('currentPassword')?.hasError('required') && passwordForm.get('currentPassword')?.touched) {
+            <mat-error>Current password is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>New Password</mat-label>
+          <input
+            matInput
+            formControlName="newPassword"
+            [type]="hideNewPassword() ? 'password' : 'text'"
+            autocomplete="new-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="toggleNewPassword()"
+            [attr.aria-label]="hideNewPassword() ? 'Show password' : 'Hide password'"
+          >
+            <mat-icon>{{ hideNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (passwordForm.get('newPassword')?.hasError('required') && passwordForm.get('newPassword')?.touched) {
+            <mat-error>New password is required</mat-error>
+          } @else if (passwordForm.get('newPassword')?.hasError('minlength') && passwordForm.get('newPassword')?.touched) {
+            <mat-error>Password must be at least 6 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm New Password</mat-label>
+          <input
+            matInput
+            formControlName="confirmPassword"
+            [errorStateMatcher]="confirmPasswordMatcher"
+            [type]="hideConfirmPassword() ? 'password' : 'text'"
+            autocomplete="new-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="toggleConfirmPassword()"
+            [attr.aria-label]="hideConfirmPassword() ? 'Show password' : 'Hide password'"
+          >
+            <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (passwordForm.get('confirmPassword')?.hasError('required') && passwordForm.get('confirmPassword')?.touched) {
+            <mat-error>Please confirm your new password</mat-error>
+          } @else if (passwordForm.errors?.['passwordsMismatch'] && passwordForm.get('confirmPassword')?.touched) {
+            <mat-error>Passwords do not match</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button class="submit-btn" type="submit" [disabled]="passwordSaving()">
+          @if (passwordSaving()) {
+            Updating...
+          } @else {
+            Update Password
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
