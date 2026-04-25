@@ -1,13 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -24,52 +16,14 @@ import { MatChipGrid, MatChipRow, MatChipInput, MatChipInputEvent } from '@angul
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import { MatDivider } from '@angular/material/divider';
 
-const CATEGORIES = [
-  'Food & Drinks',
-  'Transportation',
-  'Housing',
-  'Entertainment',
-  'Shopping',
-  'Healthcare',
-  'Education',
-  'Travel',
-  'Bills & Utilities',
-  'Other',
-] as const;
-
-const SPLIT_TYPES = [
-  { value: 'equal', label: 'Equal' },
-  { value: 'percentage', label: 'Percentage' },
-  { value: 'exact', label: 'Exact Amount' },
-  { value: 'shares', label: 'Shares' },
-] as const;
-
-function atLeastOneParticipantValidator(control: AbstractControl): ValidationErrors | null {
-  const arr = control as FormArray;
-  return arr.length === 0 ? { atLeastOne: true } : null;
-}
-
-function percentageSumValidator(control: AbstractControl): ValidationErrors | null {
-  const arr = control as FormArray;
-  if (arr.length === 0) return null;
-  const sum = arr.controls.reduce((acc, c) => acc + (+c.get('value')!.value || 0), 0);
-  return Math.abs(sum - 100) > 0.01 ? { percentageSum: true } : null;
-}
-
-function makeExactAmountSumValidator(getAmount: () => number) {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const arr = control as FormArray;
-    if (arr.length === 0) return null;
-    const sum = arr.controls.reduce((acc, c) => acc + (+c.get('value')!.value || 0), 0);
-    const total = getAmount();
-    return Math.abs(sum - total) > 0.01 ? { exactSum: true } : null;
-  };
-}
-
-interface SplitPreviewRow {
-  name: string;
-  share: number;
-}
+import { EXPENSE_CATEGORIES, SPLIT_TYPE_OPTIONS } from '../expense.constants';
+import { calculateSplitPreview } from '../expense-split.utils';
+import {
+  atLeastOneParticipantValidator,
+  makeExactAmountSumValidator,
+  percentageSumValidator,
+} from '../expense.validators';
+import type { ExpensePayload, SplitType } from '../expense.model';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -112,8 +66,8 @@ export class AddEditExpenseComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  readonly categories = CATEGORIES;
-  readonly splitTypes = SPLIT_TYPES;
+  readonly categories = EXPENSE_CATEGORIES;
+  readonly splitTypes = SPLIT_TYPE_OPTIONS;
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
   isEditMode = signal(false);
@@ -126,20 +80,25 @@ export class AddEditExpenseComponent implements OnInit {
     return this.isEditMode() ? 'Save Changes' : 'Add Expense';
   });
 
-  // Updated on form.valueChanges so computed signals react to form changes
+  // Bridge signal: updated on form.valueChanges so computed() signals react to form state
   private _formValue = signal<unknown>(null);
 
   paidByOptions = computed<string[]>(() => {
     this._formValue();
-    const names = this.participants.controls
-      .map((c) => c.get('name')!.value as string)
-      .filter(Boolean);
-    return ['Me', ...names];
+    return ['Me', ...this.participantNames()];
   });
 
-  splitPreview = computed<SplitPreviewRow[]>(() => {
+  splitPreview = computed(() => {
     this._formValue();
-    return this.calculateSplitPreview();
+    if (!this.splitEnabled) return [];
+    return calculateSplitPreview({
+      splitType: this.splitType,
+      total: this.amount,
+      participants: this.participants.controls.map((c) => ({
+        name: c.get('name')!.value as string,
+        value: +c.get('value')!.value || 0,
+      })),
+    });
   });
 
   form: FormGroup;
@@ -152,8 +111,8 @@ export class AddEditExpenseComponent implements OnInit {
     return !!this.form.get('splitEnabled')!.value;
   }
 
-  get splitType(): string {
-    return this.form.get('splitType')!.value as string;
+  get splitType(): SplitType {
+    return this.form.get('splitType')!.value as SplitType;
   }
 
   get amount(): number {
@@ -174,17 +133,111 @@ export class AddEditExpenseComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.form.valueChanges.subscribe((v) => this._formValue.set(v));
+    this.registerFormListeners();
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
       this.loadExpenseForEdit(id);
     }
+  }
 
+  addParticipant(name = ''): void {
+    this.participants.push(
+      this.fb.group({
+        name: [name, Validators.required],
+        value: [0, [Validators.required, Validators.min(0)]],
+      }),
+    );
+    this.updateSplitValidators();
+  }
+
+  removeParticipant(index: number): void {
+    const removed = this.participants.at(index).get('name')!.value as string;
+    this.participants.removeAt(index);
+    if (this.form.get('paidBy')!.value === removed) {
+      this.form.get('paidBy')!.setValue('Me');
+    }
+    this.updateSplitValidators();
+  }
+
+  onChipAdd(event: MatChipInputEvent): void {
+    const name = (event.value || '').trim();
+    if (name) this.addParticipant(name);
+    event.chipInput!.clear();
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.participants.controls.forEach((c) => (c as FormGroup).markAllAsTouched());
+      return;
+    }
+    this.isSubmitting.set(true);
+    this.submitError.set('');
+    const payload = this.buildPayload();
+    // TODO: call ExpenseService.create / update — send intent, not pre-calculated shares
+    console.log('Expense payload:', payload);
+    this.isSubmitting.set(false);
+    this.router.navigate(['/expenses']);
+  }
+
+  onCancel(): void {
+    this.router.navigate(['/expenses']);
+  }
+
+  // ── Private ────────────────────────────────────────────────────────────────
+
+  private registerFormListeners(): void {
+    this.form.valueChanges.subscribe((v) => this._formValue.set(v));
     this.form.get('splitEnabled')!.valueChanges.subscribe(() => this.updateSplitValidators());
     this.form.get('splitType')!.valueChanges.subscribe(() => this.updateSplitValidators());
     this.form.get('amount')!.valueChanges.subscribe(() => this.updateSplitValidators());
+  }
+
+  private updateSplitValidators(): void {
+    const arrayValidators = this.splitEnabled
+      ? [
+          atLeastOneParticipantValidator,
+          ...(this.splitType === 'percentage' ? [percentageSumValidator] : []),
+          ...(this.splitType === 'exact' ? [makeExactAmountSumValidator(() => this.amount)] : []),
+        ]
+      : [];
+
+    this.participants.setValidators(arrayValidators.length ? arrayValidators : null);
+    this.participants.updateValueAndValidity({ emitEvent: false });
+
+    this.participants.controls.forEach((ctrl) => {
+      const valueCtrl = ctrl.get('value')!;
+      if (!this.splitEnabled || this.splitType === 'equal') {
+        valueCtrl.clearValidators();
+      } else if (this.splitType === 'shares') {
+        valueCtrl.setValidators([Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]);
+      } else {
+        valueCtrl.setValidators([Validators.required, Validators.min(0.01)]);
+      }
+      valueCtrl.updateValueAndValidity({ emitEvent: false });
+    });
+  }
+
+  private buildPayload(): ExpensePayload {
+    const v = this.form.value;
+    return {
+      amount: v.amount,
+      description: v.description,
+      category: v.category,
+      date: v.date,
+      paidBy: v.paidBy,
+      splitEnabled: v.splitEnabled,
+      splitType: v.splitType,
+      participants: v.participants,
+    };
+  }
+
+  private participantNames(): string[] {
+    return this.participants.controls
+      .map((c) => c.get('name')!.value as string)
+      .filter(Boolean);
   }
 
   private loadExpenseForEdit(_id: string): void {
@@ -200,129 +253,5 @@ export class AddEditExpenseComponent implements OnInit {
     });
     this.addParticipant('Alice');
     this.addParticipant('Bob');
-  }
-
-  addParticipant(name = ''): void {
-    this.participants.push(
-      this.fb.group({
-        name: [name, Validators.required],
-        value: [0, [Validators.required, Validators.min(0)]],
-      }),
-    );
-    this.updateSplitValidators();
-  }
-
-  removeParticipant(index: number): void {
-    const removedName = this.participants.at(index).get('name')!.value as string;
-    this.participants.removeAt(index);
-    if (this.form.get('paidBy')!.value === removedName) {
-      this.form.get('paidBy')!.setValue('Me');
-    }
-    this.updateSplitValidators();
-  }
-
-  onChipAdd(event: MatChipInputEvent): void {
-    const name = (event.value || '').trim();
-    if (name) {
-      this.addParticipant(name);
-    }
-    event.chipInput!.clear();
-  }
-
-  updateSplitValidators(): void {
-    const validators = [];
-
-    if (this.splitEnabled) {
-      validators.push(atLeastOneParticipantValidator);
-      if (this.splitType === 'percentage') {
-        validators.push(percentageSumValidator);
-      } else if (this.splitType === 'exact') {
-        validators.push(makeExactAmountSumValidator(() => this.amount));
-      }
-    }
-
-    this.participants.setValidators(validators.length ? validators : null);
-    this.participants.updateValueAndValidity({ emitEvent: false });
-
-    this.participants.controls.forEach((ctrl) => {
-      const valueCtrl = ctrl.get('value')!;
-      if (!this.splitEnabled || this.splitType === 'equal') {
-        valueCtrl.clearValidators();
-      } else if (this.splitType === 'shares') {
-        valueCtrl.setValidators([
-          Validators.required,
-          Validators.min(1),
-          Validators.pattern(/^\d+$/),
-        ]);
-      } else {
-        valueCtrl.setValidators([Validators.required, Validators.min(0.01)]);
-      }
-      valueCtrl.updateValueAndValidity({ emitEvent: false });
-    });
-  }
-
-  private calculateSplitPreview(): SplitPreviewRow[] {
-    if (!this.splitEnabled || this.participants.length === 0) return [];
-    const total = this.amount;
-    const count = this.participants.length;
-    const controls = this.participants.controls;
-
-    switch (this.splitType) {
-      case 'equal':
-        return controls.map((c) => ({
-          name: c.get('name')!.value,
-          share: +(total / count).toFixed(2),
-        }));
-      case 'percentage':
-        return controls.map((c) => ({
-          name: c.get('name')!.value,
-          share: +((+c.get('value')!.value / 100) * total).toFixed(2),
-        }));
-      case 'exact':
-        return controls.map((c) => ({
-          name: c.get('name')!.value,
-          share: +c.get('value')!.value,
-        }));
-      case 'shares': {
-        const totalShares = controls.reduce((s, c) => s + (+c.get('value')!.value || 0), 0);
-        return controls.map((c) => ({
-          name: c.get('name')!.value,
-          share:
-            totalShares > 0
-              ? +((+c.get('value')!.value / totalShares) * total).toFixed(2)
-              : 0,
-        }));
-      }
-      default:
-        return [];
-    }
-  }
-
-  onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.participants.controls.forEach((c) => (c as FormGroup).markAllAsTouched());
-      return;
-    }
-    this.isSubmitting.set(true);
-    this.submitError.set('');
-    // TODO: call ExpenseService.create / update — send intent, not pre-calculated shares
-    const payload = {
-      amount: this.form.value.amount,
-      description: this.form.value.description,
-      category: this.form.value.category,
-      date: this.form.value.date,
-      paidBy: this.form.value.paidBy,
-      splitEnabled: this.form.value.splitEnabled,
-      splitType: this.form.value.splitType,
-      participants: this.form.value.participants,
-    };
-    console.log('Expense payload:', payload);
-    this.isSubmitting.set(false);
-    this.router.navigate(['/expenses']);
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/expenses']);
   }
 }
