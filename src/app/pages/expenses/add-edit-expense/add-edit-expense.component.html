@@ -99,11 +99,15 @@
               <mat-label>Add Participants</mat-label>
               <mat-chip-grid #chipGrid aria-label="Participants">
                 @for (ctrl of participants.controls; track $index; let i = $index) {
-                  <mat-chip-row (removed)="removeParticipant(i)">
-                    {{ ctrl.get('name')!.value }}
-                    <button matChipRemove [attr.aria-label]="'Remove ' + ctrl.get('name')!.value">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
+                  <mat-chip-row
+                    class="removable-chip"
+                    (click)="removeParticipant(i)"
+                    [attr.aria-label]="'Remove ' + ctrl.get('name')!.value"
+                  >
+                    <span class="chip-content">
+                      <span>{{ ctrl.get('name')!.value }}</span>
+                      <mat-icon class="chip-remove-icon">close</mat-icon>
+                    </span>
                   </mat-chip-row>
                 }
               </mat-chip-grid>
