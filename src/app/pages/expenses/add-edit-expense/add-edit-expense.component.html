@@ -1,0 +1,212 @@
+<div class="expense-container">
+
+  <!-- Header -->
+  <div class="expense-header">
+    <button mat-icon-button routerLink="/expenses" aria-label="Go back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="expense-title">{{ pageTitle() }}</h1>
+  </div>
+
+  <form id="expenseForm" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <!-- Card 1: Expense Details -->
+    <mat-card class="expense-card">
+      <mat-card-header>
+        <mat-card-title>Expense Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <!-- Amount -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amount</mat-label>
+          <span matPrefix class="amount-prefix">$&nbsp;</span>
+          <input matInput formControlName="amount" type="number" min="0.01" step="0.01" placeholder="0.00" />
+          @if (form.get('amount')?.hasError('required') && form.get('amount')?.touched) {
+            <mat-error>Amount is required</mat-error>
+          } @else if (form.get('amount')?.hasError('min') && form.get('amount')?.touched) {
+            <mat-error>Amount must be greater than 0</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description" type="text" placeholder="What was this for?" />
+          @if (form.get('description')?.hasError('required') && form.get('description')?.touched) {
+            <mat-error>Description is required</mat-error>
+          } @else if (form.get('description')?.hasError('minlength') && form.get('description')?.touched) {
+            <mat-error>Description must be at least 2 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Category -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category">
+            @for (cat of categories; track cat) {
+              <mat-option [value]="cat">{{ cat }}</mat-option>
+            }
+          </mat-select>
+          @if (form.get('category')?.hasError('required') && form.get('category')?.touched) {
+            <mat-error>Category is required</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Date -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="datepicker" formControlName="date" />
+          <mat-datepicker-toggle matIconSuffix [for]="datepicker" />
+          <mat-datepicker #datepicker />
+          @if (form.get('date')?.hasError('required') && form.get('date')?.touched) {
+            <mat-error>Date is required</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Paid By -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Paid By</mat-label>
+          <mat-select formControlName="paidBy">
+            @for (opt of paidByOptions(); track opt) {
+              <mat-option [value]="opt">{{ opt }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card 2: Split -->
+    <mat-card class="expense-card">
+      <mat-card-header>
+        <mat-card-title>Split</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+
+        <!-- Split Toggle -->
+        <div class="split-toggle-row">
+          <mat-slide-toggle formControlName="splitEnabled" color="primary">
+            Split this expense
+          </mat-slide-toggle>
+        </div>
+
+        @if (splitEnabled) {
+          <div class="split-section">
+
+            <!-- Participants chip input -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Add Participants</mat-label>
+              <mat-chip-grid #chipGrid aria-label="Participants">
+                @for (ctrl of participants.controls; track $index; let i = $index) {
+                  <mat-chip-row
+                    class="removable-chip"
+                    (click)="removeParticipant(i)"
+                    [attr.aria-label]="'Remove ' + ctrl.get('name')!.value"
+                  >
+                    <span class="chip-content">
+                      <span>{{ ctrl.get('name')!.value }}</span>
+                      <mat-icon class="chip-remove-icon">close</mat-icon>
+                    </span>
+                  </mat-chip-row>
+                }
+              </mat-chip-grid>
+              <input
+                placeholder="Type name and press Enter..."
+                [matChipInputFor]="chipGrid"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                (matChipInputTokenEnd)="onChipAdd($event)"
+              />
+              @if (participants.hasError('atLeastOne') && participants.touched) {
+                <mat-error>Add at least one participant</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Split Type -->
+            @if (participants.length > 0) {
+              <div class="split-type-section">
+                <span class="split-type-label">Split Type</span>
+                <mat-radio-group formControlName="splitType" class="split-type-group">
+                  @for (type of splitTypes; track type.value) {
+                    <mat-radio-button [value]="type.value">{{ type.label }}</mat-radio-button>
+                  }
+                </mat-radio-group>
+              </div>
+
+              <!-- Per-participant value inputs (not shown for equal) -->
+              @if (splitType !== 'equal') {
+                <div class="participant-inputs" formArrayName="participants">
+                  @for (ctrl of participants.controls; track $index; let i = $index) {
+                    <div [formGroupName]="i" class="participant-input-row">
+                      <span class="participant-name">{{ ctrl.get('name')!.value }}</span>
+                      <mat-form-field appearance="outline" class="participant-value-field">
+                        <mat-label>
+                          @if (splitType === 'percentage') { Percentage }
+                          @else if (splitType === 'exact') { Amount }
+                          @else { Shares }
+                        </mat-label>
+                        <input matInput formControlName="value" type="number" min="0" />
+                        @if (splitType === 'percentage') {
+                          <span matSuffix>%</span>
+                        } @else if (splitType === 'exact') {
+                          <span matPrefix>$&nbsp;</span>
+                        }
+                        @if (ctrl.get('value')?.hasError('required') && ctrl.get('value')?.touched) {
+                          <mat-error>Required</mat-error>
+                        } @else if (ctrl.get('value')?.hasError('min') && ctrl.get('value')?.touched) {
+                          <mat-error>Must be > 0</mat-error>
+                        } @else if (ctrl.get('value')?.hasError('pattern') && ctrl.get('value')?.touched) {
+                          <mat-error>Must be a whole number</mat-error>
+                        }
+                      </mat-form-field>
+                    </div>
+                  }
+
+                  @if (splitType === 'percentage' && participants.hasError('percentageSum') && participants.touched) {
+                    <div class="split-sum-error">Percentages must add up to 100%</div>
+                  }
+                  @if (splitType === 'exact' && participants.hasError('exactSum') && participants.touched) {
+                    <div class="split-sum-error">Amounts must add up to the total ({{ amount | currency }})</div>
+                  }
+                </div>
+              }
+
+              <!-- Split Preview -->
+              @if (splitPreview().length > 0) {
+                <div class="split-preview">
+                  <div class="split-preview-title">Split Preview</div>
+                  <mat-divider />
+                  @for (row of splitPreview(); track row.name) {
+                    <div class="split-preview-row">
+                      <span class="preview-name">{{ row.name }}</span>
+                      <span class="preview-amount">{{ row.share | currency }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            }
+
+          </div>
+        }
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Error Banner -->
+    @if (submitError()) {
+      <div class="server-error">{{ submitError() }}</div>
+    }
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button mat-stroked-button type="button" class="cancel-btn" (click)="onCancel()">
+        Cancel
+      </button>
+      <button mat-flat-button type="submit" class="save-btn" [disabled]="isSubmitting()">
+        {{ submitLabel() }}
+      </button>
+    </div>
+
+  </form>
+
+</div>
