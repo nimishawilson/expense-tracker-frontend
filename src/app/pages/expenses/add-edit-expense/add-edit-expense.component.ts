@@ -24,6 +24,7 @@ import {
   percentageSumValidator,
 } from '../expense.validators';
 import type { ExpensePayload, SplitType } from '../expense.model';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -65,6 +66,7 @@ export class AddEditExpenseComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   readonly categories = EXPENSE_CATEGORIES;
   readonly splitTypes = SPLIT_TYPE_OPTIONS;
@@ -85,7 +87,10 @@ export class AddEditExpenseComponent implements OnInit {
 
   paidByOptions = computed<string[]>(() => {
     this._formValue();
-    return ['Me', ...this.participantNames()];
+    const currentName = this.authService.currentUser().name;
+    // Deduplicate: current user is always first; exclude them from chip list if present
+    const others = this.participantNames().filter((n) => n !== currentName);
+    return [currentName, ...others];
   });
 
   splitPreview = computed(() => {
@@ -125,7 +130,7 @@ export class AddEditExpenseComponent implements OnInit {
       description: ['', [Validators.required, Validators.minLength(2)]],
       category: ['', Validators.required],
       date: [new Date(), Validators.required],
-      paidBy: ['Me', Validators.required],
+      paidBy: [this.authService.currentUser().name, Validators.required],
       splitEnabled: [false],
       splitType: ['equal'],
       participants: this.fb.array([]),
@@ -156,7 +161,7 @@ export class AddEditExpenseComponent implements OnInit {
     const removed = this.participants.at(index).get('name')!.value as string;
     this.participants.removeAt(index);
     if (this.form.get('paidBy')!.value === removed) {
-      this.form.get('paidBy')!.setValue('Me');
+      this.form.get('paidBy')!.setValue(this.authService.currentUser().name);
     }
     this.updateSplitValidators();
   }
@@ -190,7 +195,12 @@ export class AddEditExpenseComponent implements OnInit {
 
   private registerFormListeners(): void {
     this.form.valueChanges.subscribe((v) => this._formValue.set(v));
-    this.form.get('splitEnabled')!.valueChanges.subscribe(() => this.updateSplitValidators());
+    this.form.get('splitEnabled')!.valueChanges.subscribe((enabled: boolean) => {
+      if (enabled && this.participants.length === 0) {
+        this.addParticipant(this.authService.currentUser().name);
+      }
+      this.updateSplitValidators();
+    });
     this.form.get('splitType')!.valueChanges.subscribe(() => this.updateSplitValidators());
     this.form.get('amount')!.valueChanges.subscribe(() => this.updateSplitValidators());
   }
@@ -247,10 +257,11 @@ export class AddEditExpenseComponent implements OnInit {
       description: 'Team lunch',
       category: 'Food & Drinks',
       date: new Date(),
-      paidBy: 'Me',
+      paidBy: this.authService.currentUser().name,
       splitEnabled: true,
       splitType: 'equal',
     });
+    this.addParticipant(this.authService.currentUser().name);
     this.addParticipant('Alice');
     this.addParticipant('Bob');
   }
