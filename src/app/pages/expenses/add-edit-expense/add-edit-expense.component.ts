@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
@@ -67,6 +68,7 @@ export class AddEditExpenseComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   readonly categories = EXPENSE_CATEGORIES;
   readonly splitTypes = SPLIT_TYPE_OPTIONS;
@@ -194,15 +196,26 @@ export class AddEditExpenseComponent implements OnInit {
   // ── Private ────────────────────────────────────────────────────────────────
 
   private registerFormListeners(): void {
-    this.form.valueChanges.subscribe((v) => this._formValue.set(v));
-    this.form.get('splitEnabled')!.valueChanges.subscribe((enabled: boolean) => {
-      if (enabled && this.participants.length === 0) {
-        this.addParticipant(this.authService.currentUser().name);
-      }
-      this.updateSplitValidators();
-    });
-    this.form.get('splitType')!.valueChanges.subscribe(() => this.updateSplitValidators());
-    this.form.get('amount')!.valueChanges.subscribe(() => this.updateSplitValidators());
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((v) => this._formValue.set(v));
+
+    this.form.get('splitEnabled')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled: boolean) => {
+        if (enabled && this.participants.length === 0) {
+          this.addParticipant(this.authService.currentUser().name);
+        }
+        this.updateSplitValidators();
+      });
+
+    this.form.get('splitType')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateSplitValidators());
+
+    this.form.get('amount')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateSplitValidators());
   }
 
   private updateSplitValidators(): void {
