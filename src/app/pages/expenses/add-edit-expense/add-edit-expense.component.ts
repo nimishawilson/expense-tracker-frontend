@@ -244,7 +244,7 @@ export class AddEditExpenseComponent implements OnInit {
   }
 
   private buildPayload(): ExpensePayload {
-    const v = this.form.value;
+    const v = this.form.getRawValue();
     return {
       amount: v.amount,
       description: v.description,
