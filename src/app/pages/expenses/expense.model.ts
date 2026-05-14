@@ -25,3 +25,21 @@ export interface ExpensePayload {
   splitType: SplitType;
   participants: ParticipantValue[];
 }
+
+export interface ParticipantShare {
+  name: string;
+  amount: number;
+}
+
+export interface Expense {
+  id: string;
+  amount: number;
+  description: string;
+  category: string;
+  date: Date;
+  paidBy: string;
+  splitEnabled: boolean;
+  splitType?: SplitType;
+  participants: string[];
+  shares?: ParticipantShare[]; // backend-computed per-person amounts
+}
