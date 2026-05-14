@@ -1,0 +1,116 @@
+@if (expense(); as e) {
+  <div class="detail-container">
+
+    <!-- Header -->
+    <div class="detail-header">
+      <button mat-icon-button (click)="goBack()" aria-label="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="detail-title">Expense Details</h1>
+      <button mat-icon-button (click)="goToEdit()" aria-label="Edit expense">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <!-- Hero amount block -->
+    <div class="amount-hero">
+      <div class="category-icon-wrap">
+        <mat-icon class="category-icon">{{ getCategoryIcon(e.category) }}</mat-icon>
+      </div>
+      <span class="amount-value">{{ e.amount | currency }}</span>
+      <span class="description-text">{{ e.description }}</span>
+      <span class="category-date">{{ e.category }} &middot; {{ e.date | date: 'MMMM d, y' }}</span>
+    </div>
+
+    <!-- Details card -->
+    <div class="details-card">
+
+      <!-- Paid by -->
+      <div class="detail-row">
+        <div class="detail-row-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="detail-row-body">
+          <span class="detail-row-label">Paid by</span>
+          <span class="detail-row-value" [class.highlight]="isPaidByMe()">{{ paidByLabel() }}</span>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <!-- Date -->
+      <div class="detail-row">
+        <div class="detail-row-icon">
+          <mat-icon>calendar_today</mat-icon>
+        </div>
+        <div class="detail-row-body">
+          <span class="detail-row-label">Date</span>
+          <span class="detail-row-value">{{ e.date | date: 'EEEE, MMMM d, y' }}</span>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <!-- Category -->
+      <div class="detail-row">
+        <div class="detail-row-icon">
+          <mat-icon>{{ getCategoryIcon(e.category) }}</mat-icon>
+        </div>
+        <div class="detail-row-body">
+          <span class="detail-row-label">Category</span>
+          <span class="detail-row-value">{{ e.category }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Split section -->
+    @if (e.splitEnabled && e.shares && e.shares.length > 0) {
+      <div class="split-card">
+        <div class="split-card-header">
+          <mat-icon class="split-header-icon">group</mat-icon>
+          <div>
+            <span class="split-card-title">Split between {{ e.participants.length }} people</span>
+            @if (splitTypeLabel()) {
+              <span class="split-type-badge">{{ splitTypeLabel() }}</span>
+            }
+          </div>
+        </div>
+
+        <mat-divider />
+
+        <div class="shares-list">
+          @for (share of e.shares; track share.name; let last = $last) {
+            <div class="share-row">
+              <div class="share-avatar">{{ share.name[0].toUpperCase() }}</div>
+              <span class="share-name" [class.share-name-you]="share.name === currentUserName()">
+                {{ share.name }}{{ share.name === currentUserName() ? ' (You)' : '' }}
+              </span>
+              <span class="share-amount">{{ share.amount | currency }}</span>
+            </div>
+            @if (!last) {
+              <mat-divider class="share-divider" />
+            }
+          }
+        </div>
+
+        <div class="split-footer">
+          <span>Total</span>
+          <span class="split-footer-total">{{ e.amount | currency }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Delete -->
+    <button
+      mat-stroked-button
+      class="delete-btn"
+      (click)="onDeleteClick()"
+      [disabled]="isDeleting()"
+    >
+      <mat-icon>delete_outline</mat-icon>
+      Delete Expense
+    </button>
+
+  </div>
+}

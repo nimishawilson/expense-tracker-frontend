@@ -1,0 +1,116 @@
+<div class="list-container">
+
+  <!-- Header -->
+  <div class="list-header">
+    <h1 class="list-title">Expenses</h1>
+    <button mat-flat-button class="add-btn-desktop" (click)="goToAdd()">
+      <mat-icon>add</mat-icon>
+      Add Expense
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <mat-button-toggle-group
+      class="period-toggle"
+      [value]="selectedPeriod()"
+      (change)="onPeriodChange($event.value)"
+      aria-label="Filter by period"
+    >
+      <mat-button-toggle value="week">Week</mat-button-toggle>
+      <mat-button-toggle value="month">Month</mat-button-toggle>
+      <mat-button-toggle value="last-month">Last Month</mat-button-toggle>
+      <mat-button-toggle value="all">All</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field appearance="outline" class="category-filter">
+      <mat-label>Category</mat-label>
+      <mat-select [value]="selectedCategory()" (selectionChange)="onCategoryChange($event.value)">
+        <mat-option value="">All</mat-option>
+        @for (cat of categories; track cat) {
+          <mat-option [value]="cat">{{ cat }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Summary strip -->
+  @if (hasExpenses()) {
+    <div class="summary-strip">
+      <span class="summary-label">Total</span>
+      <span class="summary-amount">{{ totalAmount() | currency }}</span>
+    </div>
+  }
+
+  <!-- Expense groups -->
+  @if (hasExpenses()) {
+    <div class="expense-groups">
+      @for (group of groupedExpenses(); track group.label) {
+        <div class="expense-group">
+          <div class="group-header">
+            <span class="group-label">{{ group.label }}</span>
+            <span class="group-total">{{ group.total | currency }}</span>
+          </div>
+
+          <div class="expense-items">
+            @for (expense of group.expenses; track expense.id; let last = $last) {
+              <button class="expense-item" (click)="goToDetail(expense.id)" type="button">
+                <div class="item-icon-wrap">
+                  <mat-icon class="item-icon">{{ getCategoryIcon(expense.category) }}</mat-icon>
+                </div>
+
+                <div class="item-body">
+                  <span class="item-description">{{ expense.description }}</span>
+                  <span class="item-meta">
+                    {{ expense.category }} &middot; {{ expense.date | date: 'MMM d' }}
+                  </span>
+                  <div class="item-tags">
+                    <span class="tag" [class.tag-you]="isPaidByMe(expense)">
+                      {{ getPaidByLabel(expense) }}
+                    </span>
+                    @if (expense.splitEnabled) {
+                      <span class="tag tag-split">
+                        <mat-icon class="tag-icon">group</mat-icon>
+                        {{ expense.participants.length }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <div class="item-amount">
+                  <span class="amount-value">{{ expense.amount | currency }}</span>
+                  <mat-icon class="chevron">chevron_right</mat-icon>
+                </div>
+              </button>
+              @if (!last) {
+                <mat-divider class="item-divider" />
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Empty state -->
+    <div class="empty-state">
+      <mat-icon class="empty-icon">receipt_long</mat-icon>
+      <p class="empty-title">No expenses found</p>
+      <p class="empty-subtitle">Try adjusting your filters or add a new expense.</p>
+      <button mat-flat-button (click)="goToAdd()">
+        <mat-icon>add</mat-icon>
+        Add Expense
+      </button>
+    </div>
+  }
+
+  <!-- Mobile FAB -->
+  <button
+    mat-fab
+    class="fab-add"
+    aria-label="Add expense"
+    (click)="goToAdd()"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+
+</div>
