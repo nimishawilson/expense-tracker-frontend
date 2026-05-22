@@ -1,0 +1,262 @@
+.page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 96px;
+  position: relative;
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font: var(--mat-sys-headline-small);
+  color: var(--mat-sys-on-surface);
+}
+
+.record-btn-desktop {
+  display: none;
+}
+
+// ── Form card ──────────────────────────────────────────────────────────────────
+
+.form-card {
+  margin-bottom: 24px;
+  border-radius: 16px !important;
+
+  mat-card-header {
+    padding-bottom: 0;
+  }
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.form-field,
+.full-width {
+  width: 100%;
+}
+
+.amount-prefix {
+  padding-left: 6px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+  padding-bottom: 4px;
+}
+
+// ── Settlement list ────────────────────────────────────────────────────────────
+
+.settlements-list {
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.settlement-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+}
+
+.item-divider {
+  margin: 0 16px;
+}
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
+
+.from-avatar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.avatar-outgoing {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.avatar-incoming {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+// ── Item body ─────────────────────────────────────────────────────────────────
+
+.item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.direction-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.user-name {
+  font: var(--mat-sys-body-large);
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+}
+
+.name-me {
+  color: var(--mat-sys-primary);
+  font-weight: 700;
+}
+
+.arrow-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-outline);
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.item-date {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.direction-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.tag-outgoing {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.tag-incoming {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.item-note {
+  margin: 0;
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
+}
+
+// ── Amount ────────────────────────────────────────────────────────────────────
+
+.item-amount {
+  flex-shrink: 0;
+  font: var(--mat-sys-body-large);
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+  margin-top: 2px;
+}
+
+.amount-outgoing {
+  color: var(--mat-sys-error);
+}
+
+.amount-incoming {
+  color: var(--mat-sys-primary);
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  gap: 8px;
+}
+
+.empty-icon {
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+  color: var(--mat-sys-outline);
+  margin-bottom: 8px;
+}
+
+.empty-title {
+  margin: 0;
+  font: var(--mat-sys-title-medium);
+  color: var(--mat-sys-on-surface);
+}
+
+.empty-subtitle {
+  margin: 0 0 16px;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// ── FAB ───────────────────────────────────────────────────────────────────────
+
+.fab-record {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10;
+}
+
+// ── Desktop ────────────────────────────────────────────────────────────────────
+
+@media (min-width: 768px) {
+  .page-container {
+    padding: 40px 24px 64px;
+  }
+
+  .record-btn-desktop {
+    display: inline-flex;
+  }
+
+  .fab-record {
+    display: none;
+  }
+
+  .form-row {
+    flex-direction: row;
+    gap: 16px;
+
+    .form-field {
+      flex: 1;
+    }
+  }
+}
