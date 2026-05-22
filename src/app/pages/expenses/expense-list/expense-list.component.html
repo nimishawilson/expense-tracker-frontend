@@ -27,7 +27,7 @@
       <mat-label>Category</mat-label>
       <mat-select [value]="selectedCategory()" (selectionChange)="onCategoryChange($event.value)">
         <mat-option value="">All</mat-option>
-        @for (cat of categories; track cat) {
+        @for (cat of categories(); track cat) {
           <mat-option [value]="cat">{{ cat }}</mat-option>
         }
       </mat-select>

@@ -1,0 +1,145 @@
+.page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font: var(--mat-sys-headline-small);
+  color: var(--mat-sys-on-surface);
+}
+
+// ── Add section ────────────────────────────────────────────────────────────────
+
+.add-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 28px;
+}
+
+.add-field {
+  width: 100%;
+}
+
+.add-btn {
+  align-self: flex-end;
+}
+
+// ── Section label ─────────────────────────────────────────────────────────────
+
+.section-label {
+  margin: 0 0 8px 4px;
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+}
+
+// ── Category card ─────────────────────────────────────────────────────────────
+
+.categories-card {
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+// ── Category row ──────────────────────────────────────────────────────────────
+
+.category-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  min-height: 56px;
+
+  &.editing {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+.cat-name {
+  flex: 1;
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.default-badge {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+// ── Edit field ────────────────────────────────────────────────────────────────
+
+.edit-field {
+  flex: 1;
+  min-width: 0;
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.empty-custom {
+  margin: 0;
+  padding: 24px 16px;
+  text-align: center;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// ── Error hint ────────────────────────────────────────────────────────────────
+
+.hint-error {
+  color: var(--mat-sys-error) !important;
+}
+
+// ── Desktop ───────────────────────────────────────────────────────────────────
+
+@media (min-width: 600px) {
+  .page-container {
+    padding: 40px 24px 64px;
+  }
+
+  .add-section {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .add-field {
+    flex: 1;
+  }
+
+  .add-btn {
+    align-self: flex-start;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+}

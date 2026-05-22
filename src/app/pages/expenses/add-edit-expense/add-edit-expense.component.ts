@@ -17,7 +17,7 @@ import { MatChipGrid, MatChipRow, MatChipInput, MatChipInputEvent } from '@angul
 import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
 import { MatDivider } from '@angular/material/divider';
 
-import { EXPENSE_CATEGORIES, SPLIT_TYPE_OPTIONS } from '../expense.constants';
+import { SPLIT_TYPE_OPTIONS } from '../expense.constants';
 import { calculateSplitPreview } from '../expense-split.utils';
 import {
   atLeastOneParticipantValidator,
@@ -26,6 +26,7 @@ import {
 } from '../expense.validators';
 import type { ExpensePayload, SplitType } from '../expense.model';
 import { AuthService } from '../../../core/auth.service';
+import { CategoryService } from '../../../core/category.service';
 
 @Component({
   selector: 'app-add-edit-expense',
@@ -68,9 +69,10 @@ export class AddEditExpenseComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private categoryService = inject(CategoryService);
   private destroyRef = inject(DestroyRef);
 
-  readonly categories = EXPENSE_CATEGORIES;
+  readonly categories = this.categoryService.allCategories;
   readonly splitTypes = SPLIT_TYPE_OPTIONS;
   readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
