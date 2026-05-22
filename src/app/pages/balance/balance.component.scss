@@ -1,0 +1,281 @@
+.page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font: var(--mat-sys-headline-small);
+  color: var(--mat-sys-on-surface);
+}
+
+// ── Summary cards ─────────────────────────────────────────────────────────────
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.summary-card {
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-card--owe {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.summary-card--owed {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.summary-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  opacity: 0.7;
+}
+
+.summary-label {
+  font: var(--mat-sys-label-medium);
+  opacity: 0.85;
+}
+
+.summary-amount {
+  font: var(--mat-sys-title-large);
+  font-weight: 700;
+}
+
+// ── Net strip ─────────────────────────────────────────────────────────────────
+
+.net-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 28px;
+  background-color: var(--mat-sys-surface-container);
+}
+
+.net-positive {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.net-negative {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.net-zero {
+  background-color: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.net-label {
+  font: var(--mat-sys-label-large);
+}
+
+.net-amount {
+  font: var(--mat-sys-title-medium);
+  font-weight: 700;
+}
+
+// ── Section label ─────────────────────────────────────────────────────────────
+
+.section-label {
+  margin: 0 0 8px 4px;
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+}
+
+// ── Per-user card ─────────────────────────────────────────────────────────────
+
+.balances-card {
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.balance-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+}
+
+.row-divider {
+  margin: 0 16px;
+}
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
+
+.user-avatar {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.avatar-owed {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.avatar-owe {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+// ── Row body ──────────────────────────────────────────────────────────────────
+
+.row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.user-name {
+  font: var(--mat-sys-body-large);
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.direction-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 8px 2px 4px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.chip-owed {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.chip-owe {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.chip-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}
+
+// ── Amount ────────────────────────────────────────────────────────────────────
+
+.row-amount {
+  flex-shrink: 0;
+  font: var(--mat-sys-title-small);
+  font-weight: 700;
+}
+
+.amount-owed {
+  color: var(--mat-sys-primary);
+}
+
+.amount-owe {
+  color: var(--mat-sys-error);
+}
+
+// ── Settle CTA ────────────────────────────────────────────────────────────────
+
+.settle-cta {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  gap: 8px;
+}
+
+.empty-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--mat-sys-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.empty-icon {
+  font-size: 44px;
+  width: 44px;
+  height: 44px;
+  color: var(--mat-sys-on-primary-container);
+}
+
+.empty-title {
+  margin: 0;
+  font: var(--mat-sys-title-large);
+  color: var(--mat-sys-on-surface);
+}
+
+.empty-subtitle {
+  margin: 0;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// ── Desktop ────────────────────────────────────────────────────────────────────
+
+@media (min-width: 768px) {
+  .page-container {
+    padding: 40px 24px 64px;
+  }
+
+  .summary-card {
+    padding: 24px 20px;
+  }
+
+  .summary-amount {
+    font: var(--mat-sys-display-small);
+    font-weight: 700;
+  }
+}
