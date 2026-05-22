@@ -1,0 +1,152 @@
+<div class="page-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Settlements</h1>
+    @if (!showForm()) {
+      <button mat-flat-button class="record-btn-desktop" (click)="openForm()">
+        <mat-icon>add</mat-icon>
+        Record
+      </button>
+    }
+  </div>
+
+  <!-- Record Settlement Form -->
+  @if (showForm()) {
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>Record Settlement</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>From (payer)</mat-label>
+              <mat-select formControlName="fromUser">
+                @for (user of knownParticipants; track user) {
+                  <mat-option [value]="user">{{ user }}</mat-option>
+                }
+              </mat-select>
+              @if (form.get('fromUser')?.hasError('required') && form.get('fromUser')?.touched) {
+                <mat-error>Required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>To (receiver)</mat-label>
+              <mat-select formControlName="toUser">
+                @for (user of knownParticipants; track user) {
+                  <mat-option [value]="user">{{ user }}</mat-option>
+                }
+              </mat-select>
+              @if (form.get('toUser')?.hasError('required') && form.get('toUser')?.touched) {
+                <mat-error>Required</mat-error>
+              } @else if (form.get('toUser')?.hasError('sameUser')) {
+                <mat-error>Must be different from payer</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Amount</mat-label>
+            <span matPrefix class="amount-prefix">$&nbsp;</span>
+            <input matInput formControlName="amount" type="number" min="0.01" step="0.01" placeholder="0.00" />
+            @if (form.get('amount')?.hasError('required') && form.get('amount')?.touched) {
+              <mat-error>Amount is required</mat-error>
+            } @else if (form.get('amount')?.hasError('min') && form.get('amount')?.touched) {
+              <mat-error>Must be greater than 0</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Note (optional)</mat-label>
+            <input matInput formControlName="note" type="text" placeholder="e.g. Rent split for May" />
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="closeForm()">Cancel</button>
+            <button mat-flat-button type="submit">Save</button>
+          </div>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Settlement Records -->
+  @if (hasSettlements()) {
+    <div class="settlements-list">
+      @for (s of settlements(); track s.id; let last = $last) {
+        <div class="settlement-item">
+          <div
+            class="from-avatar"
+            [class.avatar-outgoing]="isOutgoing(s)"
+            [class.avatar-incoming]="isIncoming(s)"
+          >
+            {{ getInitials(s.fromUser) }}
+          </div>
+
+          <div class="item-body">
+            <div class="direction-line">
+              <span class="user-name" [class.name-me]="s.fromUser === currentUserName()">
+                {{ s.fromUser === currentUserName() ? 'You' : s.fromUser }}
+              </span>
+              <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+              <span class="user-name" [class.name-me]="s.toUser === currentUserName()">
+                {{ s.toUser === currentUserName() ? 'You' : s.toUser }}
+              </span>
+            </div>
+
+            <div class="item-meta">
+              <span class="item-date">{{ s.date | date: 'MMM d, yyyy' }}</span>
+              @if (getDirectionLabel(s)) {
+                <span
+                  class="direction-tag"
+                  [class.tag-outgoing]="isOutgoing(s)"
+                  [class.tag-incoming]="isIncoming(s)"
+                >
+                  {{ getDirectionLabel(s) }}
+                </span>
+              }
+            </div>
+
+            @if (s.note) {
+              <p class="item-note">"{{ s.note }}"</p>
+            }
+          </div>
+
+          <div
+            class="item-amount"
+            [class.amount-outgoing]="isOutgoing(s)"
+            [class.amount-incoming]="isIncoming(s)"
+          >
+            {{ s.amount | currency }}
+          </div>
+        </div>
+
+        @if (!last) {
+          <mat-divider class="item-divider" />
+        }
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">handshake</mat-icon>
+      <p class="empty-title">No settlements yet</p>
+      <p class="empty-subtitle">Record a payment between participants to settle up.</p>
+      <button mat-flat-button (click)="openForm()">
+        <mat-icon>add</mat-icon>
+        Record Settlement
+      </button>
+    </div>
+  }
+
+  <!-- Mobile FAB -->
+  @if (!showForm()) {
+    <button mat-fab class="fab-record" aria-label="Record settlement" (click)="openForm()">
+      <mat-icon>add</mat-icon>
+    </button>
+  }
+
+</div>
