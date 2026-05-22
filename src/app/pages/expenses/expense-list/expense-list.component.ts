@@ -9,10 +9,10 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
 import { MatDivider } from '@angular/material/divider';
 
-import { EXPENSE_CATEGORIES } from '../expense.constants';
 import type { Expense } from '../expense.model';
 import { ExpenseService } from '../expense.service';
 import { AuthService } from '../../../core/auth.service';
+import { CategoryService } from '../../../core/category.service';
 
 const CATEGORY_ICONS: Record<string, string> = {
   'Food & Drinks': 'restaurant',
@@ -53,8 +53,9 @@ export class ExpenseListComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
+  private categoryService = inject(CategoryService);
 
-  readonly categories = EXPENSE_CATEGORIES;
+  readonly categories = this.categoryService.allCategories;
 
   readonly selectedCategory = signal<string>('');
   readonly selectedPeriod = signal<PeriodFilter>('month');

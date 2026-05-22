@@ -60,4 +60,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
   },
+  {
+    path: 'categories',
+    loadComponent: () =>
+      import('./pages/categories/category-management.component').then(
+        (m) => m.CategoryManagementComponent,
+      ),
+  },
 ];

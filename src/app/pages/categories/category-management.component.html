@@ -1,0 +1,99 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <h1 class="page-title">Categories</h1>
+  </div>
+
+  <!-- Add Category -->
+  <div class="add-section">
+    <mat-form-field appearance="outline" class="add-field" subscriptSizing="dynamic">
+      <mat-label>New category name</mat-label>
+      <input
+        matInput
+        [(ngModel)]="newName"
+        (ngModelChange)="addError = ''"
+        (keyup.enter)="addCategory()"
+        placeholder="e.g. Fitness"
+        maxlength="50"
+      />
+      @if (addError) {
+        <mat-hint class="hint-error">{{ addError }}</mat-hint>
+      }
+    </mat-form-field>
+
+    <button
+      mat-flat-button
+      class="add-btn"
+      (click)="addCategory()"
+      [disabled]="!newName.trim()"
+    >
+      <mat-icon>add</mat-icon>
+      Add
+    </button>
+  </div>
+
+  <!-- Custom Categories -->
+  <p class="section-label">Custom</p>
+  <div class="categories-card">
+    @if (customCategories().length === 0) {
+      <p class="empty-custom">No custom categories yet. Add one above.</p>
+    } @else {
+      @for (cat of customCategories(); track cat; let last = $last) {
+        <div class="category-row" [class.editing]="editingCategory === cat">
+          @if (editingCategory === cat) {
+            <mat-form-field appearance="outline" class="edit-field" subscriptSizing="dynamic">
+              <input
+                matInput
+                [(ngModel)]="editValue"
+                (ngModelChange)="editError = ''"
+                (keyup.enter)="saveEdit(cat)"
+                (keyup.escape)="cancelEdit()"
+                maxlength="50"
+              />
+              @if (editError) {
+                <mat-hint class="hint-error">{{ editError }}</mat-hint>
+              }
+            </mat-form-field>
+
+            <div class="actions">
+              <button mat-icon-button aria-label="Save" color="primary" (click)="saveEdit(cat)">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-icon-button aria-label="Cancel" (click)="cancelEdit()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          } @else {
+            <span class="cat-name">{{ cat }}</span>
+            <div class="actions">
+              <button mat-icon-button aria-label="Edit category" (click)="startEdit(cat)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button aria-label="Delete category" (click)="deleteCategory(cat)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+        @if (!last) {
+          <mat-divider />
+        }
+      }
+    }
+  </div>
+
+  <!-- Default Categories -->
+  <p class="section-label">Default</p>
+  <div class="categories-card">
+    @for (cat of defaultCategories; track cat; let last = $last) {
+      <div class="category-row">
+        <span class="cat-name">{{ cat }}</span>
+        <span class="default-badge">Default</span>
+      </div>
+      @if (!last) {
+        <mat-divider />
+      }
+    }
+  </div>
+
+</div>
