@@ -1,0 +1,107 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <h1 class="page-title">Balances</h1>
+  </div>
+
+  @if (hasBalances()) {
+
+    <!-- Summary cards -->
+    <div class="summary-grid">
+      <div class="summary-card summary-card--owe">
+        <mat-icon class="summary-icon">arrow_upward</mat-icon>
+        <span class="summary-label">You owe</span>
+        <span class="summary-amount">{{ summary().youOwe | currency }}</span>
+      </div>
+      <div class="summary-card summary-card--owed">
+        <mat-icon class="summary-icon">arrow_downward</mat-icon>
+        <span class="summary-label">You are owed</span>
+        <span class="summary-amount">{{ summary().youAreOwed | currency }}</span>
+      </div>
+    </div>
+
+    <!-- Net balance strip -->
+    <div
+      class="net-strip"
+      [class.net-positive]="summary().net > 0"
+      [class.net-negative]="summary().net < 0"
+      [class.net-zero]="summary().net === 0"
+    >
+      <span class="net-label">
+        @if (summary().net > 0) {
+          Overall you are owed
+        } @else if (summary().net < 0) {
+          Overall you owe
+        } @else {
+          You're all settled up
+        }
+      </span>
+      @if (summary().net !== 0) {
+        <span class="net-amount">{{ summary().net | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+      }
+    </div>
+
+    <!-- Per-user breakdown -->
+    <p class="section-label">Per person</p>
+    <div class="balances-card">
+      @for (u of summary().perUser; track u.user; let last = $last) {
+        <div class="balance-row">
+          <div
+            class="user-avatar"
+            [class.avatar-owed]="isOwedToMe(u)"
+            [class.avatar-owe]="!isOwedToMe(u)"
+          >
+            {{ getInitials(u.user) }}
+          </div>
+
+          <div class="row-body">
+            <span class="user-name">{{ u.user }}</span>
+            <span
+              class="direction-chip"
+              [class.chip-owed]="isOwedToMe(u)"
+              [class.chip-owe]="!isOwedToMe(u)"
+            >
+              <mat-icon class="chip-icon">
+                {{ isOwedToMe(u) ? 'arrow_downward' : 'arrow_upward' }}
+              </mat-icon>
+              {{ isOwedToMe(u) ? 'Owes you' : 'You owe' }}
+            </span>
+          </div>
+
+          <span
+            class="row-amount"
+            [class.amount-owed]="isOwedToMe(u)"
+            [class.amount-owe]="!isOwedToMe(u)"
+          >
+            {{ (u.amount < 0 ? -u.amount : u.amount) | currency }}
+          </span>
+        </div>
+
+        @if (!last) {
+          <mat-divider class="row-divider" />
+        }
+      }
+    </div>
+
+    <!-- Settle up CTA -->
+    <div class="settle-cta">
+      <button mat-flat-button (click)="goToSettlements()">
+        <mat-icon>handshake</mat-icon>
+        Record a Settlement
+      </button>
+    </div>
+
+  } @else {
+
+    <!-- All settled up empty state -->
+    <div class="empty-state">
+      <div class="empty-icon-wrap">
+        <mat-icon class="empty-icon">check_circle</mat-icon>
+      </div>
+      <p class="empty-title">All settled up!</p>
+      <p class="empty-subtitle">You have no outstanding balances with anyone.</p>
+    </div>
+
+  }
+
+</div>
