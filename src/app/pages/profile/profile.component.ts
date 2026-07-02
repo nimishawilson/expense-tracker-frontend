@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -25,8 +25,10 @@ function newPasswordsMatch(control: AbstractControl): ValidationErrors | null {
 
 class ConfirmPasswordErrorMatcher implements ErrorStateMatcher {
   isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
-    return !!(control?.invalid && control?.touched) ||
-      !!(form?.errors?.['passwordsMismatch'] && control?.touched);
+    return (
+      !!(control?.invalid && control?.touched) ||
+      !!(form?.errors?.['passwordsMismatch'] && control?.touched)
+    );
   }
 }
 
@@ -49,6 +51,7 @@ class ConfirmPasswordErrorMatcher implements ErrorStateMatcher {
     MatCardTitle,
   ],
   templateUrl: './profile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {

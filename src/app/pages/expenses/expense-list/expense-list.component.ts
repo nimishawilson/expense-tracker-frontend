@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
@@ -47,6 +47,7 @@ export type PeriodFilter = 'week' | 'month' | 'last-month' | 'all';
     MatDivider,
   ],
   templateUrl: './expense-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './expense-list.component.scss',
 })
 export class ExpenseListComponent {

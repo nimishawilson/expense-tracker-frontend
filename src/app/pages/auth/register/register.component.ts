@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -38,6 +38,7 @@ function passwordsMatch(control: AbstractControl): ValidationErrors | null {
     MatCardContent,
   ],
   templateUrl: './register.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent {

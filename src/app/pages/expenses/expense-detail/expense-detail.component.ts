@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
@@ -36,6 +43,7 @@ const SPLIT_TYPE_LABELS: Record<string, string> = {
   standalone: true,
   imports: [CurrencyPipe, DatePipe, MatIcon, MatButton, MatIconButton, MatDivider],
   templateUrl: './expense-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './expense-detail.component.scss',
 })
 export class ExpenseDetailComponent implements OnInit {

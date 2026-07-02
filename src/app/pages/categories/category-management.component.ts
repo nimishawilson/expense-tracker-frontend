@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatHint } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -22,6 +22,7 @@ import { CategoryService } from '../../core/category.service';
     MatDivider,
   ],
   templateUrl: './category-management.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './category-management.component.scss',
 })
 export class CategoryManagementComponent {
