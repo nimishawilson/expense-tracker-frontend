@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
@@ -13,6 +13,7 @@ import type { UserBalance } from './balance.model';
   standalone: true,
   imports: [CurrencyPipe, MatIcon, MatButton, MatDivider],
   templateUrl: './balance.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './balance.component.scss',
 })
 export class BalanceComponent {

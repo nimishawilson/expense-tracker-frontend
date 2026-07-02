@@ -1,10 +1,24 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatFormField, MatLabel, MatError, MatSuffix, MatPrefix } from '@angular/material/form-field';
+import {
+  MatFormField,
+  MatLabel,
+  MatError,
+  MatSuffix,
+  MatPrefix,
+} from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { MatOption } from '@angular/material/core';
@@ -14,7 +28,11 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/m
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
 import { MatChipGrid, MatChipRow, MatChipInput, MatChipInputEvent } from '@angular/material/chips';
-import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
+import {
+  MatDatepicker,
+  MatDatepickerInput,
+  MatDatepickerToggle,
+} from '@angular/material/datepicker';
 import { MatDivider } from '@angular/material/divider';
 
 import { SPLIT_TYPE_OPTIONS } from '../expense.constants';
@@ -62,6 +80,7 @@ import { CategoryService } from '../../../core/category.service';
     MatDivider,
   ],
   templateUrl: './add-edit-expense.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-edit-expense.component.scss',
 })
 export class AddEditExpenseComponent implements OnInit {
@@ -202,8 +221,9 @@ export class AddEditExpenseComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((v) => this._formValue.set(v));
 
-    this.form.get('splitEnabled')!.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('splitEnabled')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((enabled: boolean) => {
         if (enabled && this.participants.length === 0) {
           this.addParticipant(this.authService.currentUser().name);
@@ -211,12 +231,14 @@ export class AddEditExpenseComponent implements OnInit {
         this.updateSplitValidators();
       });
 
-    this.form.get('splitType')!.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('splitType')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.updateSplitValidators());
 
-    this.form.get('amount')!.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.form
+      .get('amount')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.updateSplitValidators());
   }
 
@@ -237,7 +259,11 @@ export class AddEditExpenseComponent implements OnInit {
       if (!this.splitEnabled || this.splitType === 'equal') {
         valueCtrl.clearValidators();
       } else if (this.splitType === 'shares') {
-        valueCtrl.setValidators([Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]);
+        valueCtrl.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.pattern(/^\d+$/),
+        ]);
       } else {
         valueCtrl.setValidators([Validators.required, Validators.min(0.01)]);
       }
@@ -260,9 +286,7 @@ export class AddEditExpenseComponent implements OnInit {
   }
 
   private participantNames(): string[] {
-    return this.participants.controls
-      .map((c) => c.get('name')!.value as string)
-      .filter(Boolean);
+    return this.participants.controls.map((c) => c.get('name')!.value as string).filter(Boolean);
   }
 
   private loadExpenseForEdit(_id: string): void {

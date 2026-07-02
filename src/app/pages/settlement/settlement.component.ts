@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormField, MatLabel, MatError, MatPrefix } from '@angular/material/form-field';
@@ -38,6 +38,7 @@ import type { Settlement } from './settlement.model';
     MatCardTitle,
   ],
   templateUrl: './settlement.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './settlement.component.scss',
 })
 export class SettlementComponent {
